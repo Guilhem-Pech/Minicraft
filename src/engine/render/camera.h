@@ -102,7 +102,9 @@ public:
 	*/
 	void move(YVec3<float> delta)
 	{
-		
+		YVec3<float> move = Direction * delta.X + RightVec * delta.Y + UpVec * delta.Z;
+		setPosition(Position + move);
+		setLookAt(LookAt + move);
 	}
 
 	/**
@@ -110,7 +112,9 @@ public:
 	*/
 	void moveTo(const YVec3<float> & target)
 	{
-		
+		YVec3 move = target - Position;
+		Position = target;
+		LookAt += move;
 	}
 
 	/**
@@ -122,8 +126,8 @@ public:
 	*/
 	void updateVecs(void)
 	{
-		Direction = (LookAt - Position).normalize();
-		RightVec = Direction.cross(UpRef).normalize();
+		Direction = (LookAt - Position).normalize(); 
+		RightVec = UpRef.cross(Direction).normalize();
 		UpVec = Direction.cross(RightVec).normalize();
 	}
 
@@ -132,7 +136,9 @@ public:
 	*/
 	void rotate(float angle)
 	{
-		
+		Direction.rotate(UpVec, angle);
+		LookAt = Position + Direction * (LookAt - Position).getSize();
+		updateVecs();
 	}
 
 	/**
@@ -140,7 +146,10 @@ public:
 	*/
 	void rotateUp(float angle)
 	{
-		
+		Direction.rotate(RightVec, angle);
+		LookAt = Position + Direction * (LookAt-Position).getSize();
+		updateVecs();
+
 	}
 
 	/**

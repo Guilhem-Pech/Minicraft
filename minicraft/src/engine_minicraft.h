@@ -256,6 +256,18 @@ public :
 	{	
 		if (key == 'g' && down)
 			boostDown += 30.f;
+
+		if (key == 'w' && down)
+			Renderer->Camera->move({ 1,0,0 });
+		
+		if (key == 's' && down)
+			Renderer->Camera->move({ -1,0,0 });
+
+		if (key == 'a' && down)
+			Renderer->Camera->move({ 0,1,0 });
+
+		if (key == 'd' && down)
+			Renderer->Camera->move({ 0,-1,0 });
 	}
 
 	void mouseWheel(int wheel, int dir, int x, int y, bool inUi)
@@ -268,9 +280,36 @@ public :
 		
 	}
 
+	float prevMouseX;
+
+	float prevMouseY;
+
+
+	const float Pi = 3.141592654f;
+	inline float DegToRad(float x)
+	{
+		return x / 180 * Pi;
+	}
+
+	inline float RadToDeg(float x)
+	{
+		return x / Pi * 180;
+	}
+	
 	void mouseMove(int x, int y, bool pressed, bool inUi)
 	{
-		
+		if(pressed)
+		{
+			//Calculate delta
+			int xDelta = x - prevMouseX;
+			int yDelta = y - prevMouseY;
+
+			Renderer->Camera->rotateUp(DegToRad(yDelta));
+			Renderer->Camera->rotate(DegToRad(-xDelta));
+			
+			prevMouseX = x;
+			prevMouseY = y;
+		}
 	}
 	
 };
