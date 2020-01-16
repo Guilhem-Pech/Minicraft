@@ -122,7 +122,9 @@ public:
 	*/
 	void updateVecs(void)
 	{
-		
+		Direction = (LookAt - Position).normalize();
+		RightVec = Direction.cross(UpRef).normalize();
+		UpVec = Direction.cross(RightVec).normalize();
 	}
 
 	/**
