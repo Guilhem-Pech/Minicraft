@@ -252,6 +252,8 @@ public :
 
 	/*INPUTS*/
 	float boostDown = 1.f;
+	bool  ctrlDown = false;
+	
 	void keyPressed(int key, bool special, bool down, int p1, int p2) 
 	{	
 		if (key == 'g' && down)
@@ -268,6 +270,9 @@ public :
 
 		if (key == 'd' && down)
 			Renderer->Camera->move({ 0,-1,0 });
+
+		if (key == GLUT_KEY_CTRL_L)
+			ctrlDown = down;
 	}
 
 	void mouseWheel(int wheel, int dir, int x, int y, bool inUi)
@@ -275,9 +280,23 @@ public :
 		
 	}
 
+	bool rightClickDown = false;
+	
 	void mouseClick(int button, int state, int x, int y, bool inUi)
 	{
-		
+		switch (button) {
+		case GLUT_LEFT_BUTTON:
+			break;
+		case GLUT_RIGHT_BUTTON:
+			switch (state) {
+			case GLUT_DOWN:
+				rightClickDown = true;
+				break;
+			default:
+				rightClickDown = false;
+				break;
+			}
+		}
 	}
 
 	float prevMouseX;
@@ -285,7 +304,8 @@ public :
 	float prevMouseY;
 
 
-	const float Pi = 3.141592654f;
+	const double Pi = M_PI;
+	
 	inline float DegToRad(float x)
 	{
 		return x / 180 * Pi;
@@ -298,18 +318,25 @@ public :
 	
 	void mouseMove(int x, int y, bool pressed, bool inUi)
 	{
-		if(pressed)
+		if(rightClickDown)
 		{
-			//Calculate delta
-			int xDelta = x - prevMouseX;
-			int yDelta = y - prevMouseY;
 
-			Renderer->Camera->rotateUp(DegToRad(yDelta));
-			Renderer->Camera->rotate(DegToRad(-xDelta));
+			float xDelta = -DegToRad(x - prevMouseX);
+			float yDelta =	DegToRad(y - prevMouseY);
+			if(ctrlDown)
+			{
+				Renderer->Camera->rotateUpAround(yDelta);
+				Renderer->Camera->rotateAround(xDelta);
+			}
+			else
+			{
+				Renderer->Camera->rotateUp( yDelta);
+				Renderer->Camera->rotate(xDelta);
+			}
 			
-			prevMouseX = x;
-			prevMouseY = y;
 		}
+		prevMouseX = x;
+		prevMouseY = y;
 	}
 	
 };

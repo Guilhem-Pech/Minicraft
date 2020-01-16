@@ -157,7 +157,8 @@ public:
 	*/
 	void rotateAround(float angle)
 	{
-		
+		Position.rotate(UpVec, angle);
+		updateVecs();
 	}
 
 	/**
@@ -165,7 +166,8 @@ public:
 	*/
 	void rotateUpAround(float angle)
 	{
-		
+		Position.rotate(RightVec, angle);
+		updateVecs();
 	}
 
 	/**
