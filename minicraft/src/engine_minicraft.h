@@ -22,6 +22,8 @@ public :
 		
 	}
 	GLuint ShaderCubeDebug;
+	GLuint ShaderSun;
+	
 	YVbo * VboCube;
 	void init() 
 	{
@@ -43,7 +45,7 @@ public :
 
 
 		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
-
+		ShaderSun = Renderer->createProgram("shaders/sun");
 		//Exemple d'utilisation d'un shader
 		
 	}
@@ -119,6 +121,16 @@ public :
 		
 	}
 
+
+
+	YVec3<float> SunDirection;
+
+	YVec3<float> SunPosition;
+
+	YColor SunColor;
+
+	YColor SkyColor;
+	
 	void renderObjects() 
 	{
 		
@@ -138,9 +150,17 @@ public :
 		glEnd();		
 
 		//glRotatef(this->DeltaTimeCumul / 10.0f * 360, -1, 1, 0);
-		glUseProgram(ShaderCubeDebug); //Demande au GPU de charger ces shaders
-		Renderer->updateMatricesFromOgl(); //Calcule toute les matrices à partir des deux matrices OGL
-		Renderer->sendMatricesToShader(ShaderCubeDebug); //Envoie les matrices au shader
+		updateLights();
+		glPushMatrix();
+		glUseProgram(ShaderSun);
+		GLuint var = glGetUniformLocation(ShaderSun, "sun_color");
+		glUniform3f(var, SunColor.R, SunColor.V, SunColor.B);
+		glTranslatef(SunPosition.X, SunPosition.Y, SunPosition.Z);
+		//glScalef(10, 10, 10);
+		Renderer->updateMatricesFromOgl();
+		Renderer->sendMatricesToShader(ShaderSun);
+		VboCube->render();
+		glPopMatrix();
 		//glDisable(GL_CULL_FACE);
 		//glDisable(GL_DEPTH_TEST);
 		
@@ -195,19 +215,13 @@ public :
 	}
 
 
-	YVec3<float> SunDirection;
-
-	YVec3<float> SunPosition;
-
-	YColor SunColor;
-
-	YColor SkyColor;
+	
 
 	void updateLights(float boostTime = 0)
 	{
 		//On recup la direction du soleil
 		bool nuit = getSunDirFromDayTime(SunDirection, 6.0f * 60.0f, 19.0f * 60.0f, boostTime);
-		SunPosition = Renderer->Camera->Position + SunDirection * 500.0f;
+		SunPosition = SunDirection * 2; //Renderer->Camera->Position + SunDirection * 500.0f;
 
 		//Pendant la journée
 		if (!nuit)
