@@ -150,7 +150,7 @@ public :
 		glEnd();		
 
 		//glRotatef(this->DeltaTimeCumul / 10.0f * 360, -1, 1, 0);
-		updateLights();
+		updateLights(boostDown);
 		glPushMatrix();
 		glUseProgram(ShaderSun);
 		GLuint var = glGetUniformLocation(ShaderSun, "sun_color");
@@ -251,10 +251,11 @@ public :
 	}
 
 	/*INPUTS*/
-
+	float boostDown = 1.f;
 	void keyPressed(int key, bool special, bool down, int p1, int p2) 
 	{	
-
+		if (key == 'g' && down)
+			boostDown += 30.f;
 	}
 
 	void mouseWheel(int wheel, int dir, int x, int y, bool inUi)
