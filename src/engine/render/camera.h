@@ -107,6 +107,12 @@ public:
 		setLookAt(LookAt + move);
 	}
 
+	void moveByWorld(YVec3<float> delta)
+	{
+		setPosition(Position + delta);
+		setLookAt(LookAt + delta);
+	}
+
 	/**
 	* Deplacement de la camera à un point donné
 	*/

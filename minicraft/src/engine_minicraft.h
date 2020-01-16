@@ -277,26 +277,33 @@ public :
 
 	void mouseWheel(int wheel, int dir, int x, int y, bool inUi)
 	{
+		if(dir < 0)
+		{
+			Renderer->Camera->move({ -1.f,0,0 });
+		} else
+		{
+			Renderer->Camera->move({ 1.f,0,0 });
+		}
 		
 	}
 
 	bool rightClickDown = false;
-	
+	bool middleClickDown = false;
 	void mouseClick(int button, int state, int x, int y, bool inUi)
 	{
 		switch (button) {
-		case GLUT_LEFT_BUTTON:
-			break;
-		case GLUT_RIGHT_BUTTON:
-			switch (state) {
-			case GLUT_DOWN:
-				rightClickDown = true;
+			case GLUT_LEFT_BUTTON:
 				break;
-			default:
-				rightClickDown = false;
+			case GLUT_RIGHT_BUTTON:
+				rightClickDown = state == GLUT_DOWN;
 				break;
-			}
+			case GLUT_MIDDLE_BUTTON :
+				middleClickDown = state == GLUT_DOWN;
+				break;
 		}
+			
+			
+		
 	}
 
 	float prevMouseX;
@@ -315,12 +322,14 @@ public :
 	{
 		return x / Pi * 180;
 	}
+
+
+	float smooth = 0.3f;
 	
 	void mouseMove(int x, int y, bool pressed, bool inUi)
 	{
 		if(rightClickDown)
 		{
-
 			float xDelta = -DegToRad(x - prevMouseX);
 			float yDelta =	DegToRad(y - prevMouseY);
 			if(ctrlDown)
@@ -332,9 +341,20 @@ public :
 			{
 				Renderer->Camera->rotateUp( yDelta);
 				Renderer->Camera->rotate(xDelta);
-			}
-			
+			}			
 		}
+		else if (middleClickDown)
+		{
+			if(ctrlDown)
+			{
+				Renderer->Camera->moveByWorld({ 0,(x - prevMouseX)*smooth, (y - prevMouseY)*smooth });
+			} else
+			{
+				Renderer->Camera->move({ 0,(x - prevMouseX)*smooth, (y-prevMouseY)*smooth });
+			}
+		}
+
+		
 		prevMouseX = x;
 		prevMouseY = y;
 	}
