@@ -31,11 +31,7 @@ public :
 		Renderer->Camera->setPosition(YVec3f(10, 10, 10));
 		Renderer->Camera->setLookAt(YVec3f());
 
-
-
-
-
-		
+			   			   		
 		//Creation du VBO
 		VboCube = CreateCube({{1,0,0} , {1,1,0}, {1,1,1},{1,0,1}, {0,0,1}, {0,1,1}, {0,1,0}, {0,0,0}});
 
@@ -141,7 +137,7 @@ public :
 		glVertex3d(0, 0, 10000);
 		glEnd();		
 
-		glRotatef(this->DeltaTimeCumul / 10.0f * 360, -1, 1, 0);
+		//glRotatef(this->DeltaTimeCumul / 10.0f * 360, -1, 1, 0);
 		glUseProgram(ShaderCubeDebug); //Demande au GPU de charger ces shaders
 		Renderer->updateMatricesFromOgl(); //Calcule toute les matrices à partir des deux matrices OGL
 		Renderer->sendMatricesToShader(ShaderCubeDebug); //Envoie les matrices au shader
@@ -153,6 +149,89 @@ public :
 
 	}
 
+	bool getSunDirFromDayTime(YVec3f & sunDir, float mnLever, float mnCoucher, float boostTime)
+	{
+		bool nuit = false;
+
+		SYSTEMTIME t;
+		GetLocalTime(&t);
+
+		//On borne le tweak time à une journée (cyclique)
+		while (boostTime > 24 * 60)
+			boostTime -= 24 * 60;
+
+		//Temps écoulé depuis le début de la journée
+		float fTime = (float)(t.wHour * 60 + t.wMinute);
+		fTime += boostTime;
+		while (fTime > 24 * 60)
+			fTime -= 24 * 60;
+
+		//Si c'est la nuit
+		if (fTime < mnLever || fTime > mnCoucher)
+		{
+			nuit = true;
+			if (fTime < mnLever)
+				fTime += 24 * 60;
+			fTime -= mnCoucher;
+			fTime /= (mnLever + 24 * 60 - mnCoucher);
+			fTime *= (float)M_PI;
+		}
+		else
+		{
+			//c'est le jour
+			nuit = false;
+			fTime -= mnLever;
+			fTime /= (mnCoucher - mnLever);
+			fTime *= (float)M_PI;
+		}
+
+		//Direction du soleil en fonction de l'heure
+		sunDir.X = cos(fTime);
+		sunDir.Y = 0.2f;
+		sunDir.Z = sin(fTime);
+		sunDir.normalize();
+
+		return nuit;
+	}
+
+
+	YVec3<float> SunDirection;
+
+	YVec3<float> SunPosition;
+
+	YColor SunColor;
+
+	YColor SkyColor;
+
+	void updateLights(float boostTime = 0)
+	{
+		//On recup la direction du soleil
+		bool nuit = getSunDirFromDayTime(SunDirection, 6.0f * 60.0f, 19.0f * 60.0f, boostTime);
+		SunPosition = Renderer->Camera->Position + SunDirection * 500.0f;
+
+		//Pendant la journée
+		if (!nuit)
+		{
+			//On definit la couleur
+			SunColor = YColor(1.0f, 1.0f, 0.8f, 1.0f);
+			SkyColor = YColor(0.0f, 181.f / 255.f, 221.f / 255.f, 1.0f);
+			YColor downColor(0.9f, 0.5f, 0.1f, 1);
+
+			SunColor = SunColor.interpolate(downColor, (abs(SunDirection.X)));
+			SkyColor = SkyColor.interpolate(downColor, (abs(SunDirection.X)));
+		}
+		else
+		{
+			//La nuit : lune blanche et ciel noir
+			SunColor = YColor(1, 1, 1, 1);
+			SkyColor = YColor(0, 0, 0, 1);
+		}
+
+		Renderer->setBackgroundColor(SkyColor);
+	}
+
+
+	
 	void resize(int width, int height) {
 	
 	}
