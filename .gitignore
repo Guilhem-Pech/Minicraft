@@ -24,3 +24,5 @@ ipch
 engine_test/run/
 
 .vs/yocto/v15/
+
+.vs/yocto/v16/

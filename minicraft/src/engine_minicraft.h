@@ -118,10 +118,24 @@ public :
 	
 	void update(float elapsed) 
 	{
-		
+		processMovments();
 	}
 
 
+	float moveSpeed = 0.8f;
+	void processMovments() {
+		if (forwardDown)
+			Renderer->Camera->move({ moveSpeed,0,0 });
+
+		if (backwardDown)
+			Renderer->Camera->move({ -moveSpeed,0,0 });
+
+		if (leftDown)
+			Renderer->Camera->move({ 0,moveSpeed,0 });
+
+		if (rightDown)
+			Renderer->Camera->move({ 0,-moveSpeed,0 });
+	}
 
 	YVec3<float> SunDirection;
 
@@ -254,22 +268,38 @@ public :
 	float boostDown = 1.f;
 	bool  ctrlDown = false;
 	
+
+	bool forwardDown = false;
+	bool backwardDown = false;
+	bool leftDown = false;
+	bool rightDown = false;
+
+
+	struct KeyMap {
+		int forward = 'z';
+		int backward = 's';
+		int left = 'q';
+		int right = 'd';
+	};
+
+	KeyMap frKeyboard = { 'z','s','q','d' }; // Forward, Backward, Left, Right
+
 	void keyPressed(int key, bool special, bool down, int p1, int p2) 
 	{	
 		if (key == 'g' && down)
 			boostDown += 30.f;
 
-		if (key == 'w' && down)
-			Renderer->Camera->move({ 1,0,0 });
+		if (key == frKeyboard.forward)
+			forwardDown = down;
 		
-		if (key == 's' && down)
-			Renderer->Camera->move({ -1,0,0 });
+		if (key == frKeyboard.backward)
+			backwardDown = down;
 
-		if (key == 'a' && down)
-			Renderer->Camera->move({ 0,1,0 });
+		if (key == frKeyboard.left)
+			leftDown = down;
 
-		if (key == 'd' && down)
-			Renderer->Camera->move({ 0,-1,0 });
+		if (key == frKeyboard.right)
+			rightDown = down;
 
 		if (key == GLUT_KEY_CTRL_L)
 			ctrlDown = down;
