@@ -299,7 +299,7 @@ public :
 			leftDown = down;
 
 		if (key == frKeyboard.right)
-			rightDown = down;
+			rightDown = down; 
 
 		if (key == GLUT_KEY_CTRL_L)
 			ctrlDown = down;
