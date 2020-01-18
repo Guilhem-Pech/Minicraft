@@ -163,7 +163,9 @@ public:
 	*/
 	void rotateAround(float angle)
 	{
-		Position.rotate(UpVec, angle);
+		Position -= LookAt;
+		Position.rotate(UpRef, angle);
+		Position += LookAt;
 		updateVecs();
 	}
 
@@ -172,7 +174,18 @@ public:
 	*/
 	void rotateUpAround(float angle)
 	{
+		Position -= LookAt;
+
+		//On ne monte pas trop haut pour ne pas passer de l'autre coté
+		YVec3f previousPos = Position;
 		Position.rotate(RightVec, angle);
+		YVec3f normPos = Position;
+		normPos.normalize();
+		float newAngle = normPos.dot(UpRef);
+		if (newAngle > 0.99 || newAngle < -0.99)
+			Position = previousPos;
+
+		Position += LookAt;
 		updateVecs();
 	}
 
