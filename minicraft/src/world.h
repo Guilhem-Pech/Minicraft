@@ -128,8 +128,8 @@ public :
 				{
 					float val = noise.sample((float)x, (float)y, (float)z);
 					MCube* cube = getCube(x, y, z);
-					cube->setType(MCube::CUBE_TERRE);
-					/*
+					//cube->setType(MCube::CUBE_TERRE);
+					
 					if (val > 0.5f)
 						cube->setType(MCube::CUBE_HERBE);
 					if (val > 0.51f)
@@ -138,7 +138,7 @@ public :
 						cube->setType(MCube::CUBE_EAU);
 					if (val > 0.56)
 						cube->setType(MCube::CUBE_EAU);
-					*/
+					
 				}
 		
 		for(int x=0;x<MAT_SIZE;x++)

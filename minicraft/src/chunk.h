@@ -46,14 +46,14 @@ class MChunk
 			foreachVisibleTriangle(true, &nbVertexOpaque, &nbVertexTransparent, VboOpaque, VboTransparent);
 
 			// Définir les VBOs
-			VboOpaque = new YVbo(3, nbVertexOpaque, YVbo::PACK_BY_ELEMENT_TYPE);
+			VboOpaque = new YVbo(4, nbVertexOpaque, YVbo::PACK_BY_ELEMENT_TYPE);
 			VboOpaque->setElementDescription(0, YVbo::Element(3)); //Sommet
 			VboOpaque->setElementDescription(1, YVbo::Element(3)); //Normale
 			VboOpaque->setElementDescription(2, YVbo::Element(2)); //UV
 			VboOpaque->setElementDescription(3, YVbo::Element(1)); //Type
 			
 
-			VboTransparent = new YVbo(3, nbVertexTransparent, YVbo::PACK_BY_ELEMENT_TYPE);
+			VboTransparent = new YVbo(4, nbVertexTransparent, YVbo::PACK_BY_ELEMENT_TYPE);
 			VboTransparent->setElementDescription(0, YVbo::Element(3)); //Sommet
 			VboTransparent->setElementDescription(1, YVbo::Element(3)); //Normale
 			VboTransparent->setElementDescription(2, YVbo::Element(2)); //UV
@@ -108,6 +108,7 @@ class MChunk
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);  //Normale (lié au layout(1) du shader)
 			vbo->setElementValue(2, iVertice, uv[3][0], uv[3][1]);
 			vbo->setElementValue(3, iVertice, type);
+			
 			return 6;
 		}
 

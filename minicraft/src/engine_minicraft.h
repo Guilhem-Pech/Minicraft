@@ -191,11 +191,11 @@ public :
 
 		//Pour dessiner le monde (fonction à coder ensuite)
 		glPushMatrix();
-		glUseProgram(ShaderCube);
-		Renderer->updateMatricesFromOgl();
-		Renderer->sendMatricesToShader(ShaderCube);
-		World->render_world_basic(ShaderCube,VboCube);
-		//World->render_world_vbo(true,true);
+		//glUseProgram(ShaderCube);
+		//Renderer->updateMatricesFromOgl();
+		//Renderer->sendMatricesToShader(ShaderCube);
+		//World->render_world_basic(ShaderCube,VboCube);
+		World->render_world_vbo(true,true);
 		glPopMatrix();
 		
 	}
