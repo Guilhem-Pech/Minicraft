@@ -6,6 +6,7 @@
 #include "engine/utils/types_3d.h"
 #include "cube.h"
 #include "chunk.h"
+#include "engine/noise/perlin.h"
 
 class MWorld
 {
@@ -102,9 +103,10 @@ public :
 		cube = getCube(x-1,y,z);
 		updateCube(x,y,z);	
 	}
-			
+	GLuint ShaderWorld;
 	void init_world(int seed)
 	{
+		ShaderWorld = YEngine::getInstance()->Renderer->createProgram("shaders/world");
 		YLog::log(YLog::USER_INFO,(toString("Creation du monde seed ")+toString(seed)).c_str());
 
 		srand(seed);
@@ -117,7 +119,27 @@ public :
 
 		//Générer ici le monde en modifiant les cubes
 		//Utiliser getCubes() 
-
+		YPerlin noise = YPerlin();
+		noise.setFreq(0.03f);
+		
+		for (int x = 0; x < MAT_SIZE_CUBES; x++)
+			for (int y = 0; y < MAT_SIZE_CUBES; y++)
+				for (int z = 0; z < MAT_HEIGHT_CUBES; z++)
+				{
+					float val = noise.sample((float)x, (float)y, (float)z);
+					MCube* cube = getCube(x, y, z);
+				
+					if (val > 0.5f)
+						cube->setType(MCube::CUBE_HERBE);
+					if (val > 0.51f)
+						cube->setType(MCube::CUBE_TERRE);
+					if (val < 0.5 && z <= 0.1)
+						cube->setType(MCube::CUBE_EAU);
+					if (val > 0.56)
+						cube->setType(MCube::CUBE_EAU);
+					
+				}
+		
 		for(int x=0;x<MAT_SIZE;x++)
 			for(int y=0;y<MAT_SIZE;y++)
 				for(int z=0;z<MAT_HEIGHT;z++)
@@ -338,16 +360,72 @@ public :
 		
 	void render_world_basic(GLuint shader, YVbo * vboCube) 
 	{
-		
+		for (int x = MAT_SIZE_CUBES - 1; x >= 0; --x)
+			for (int y = MAT_SIZE_CUBES - 1; y >= 0; --y)
+				for (int z = MAT_HEIGHT_CUBES - 1; z >= 0; --z)
+				{
+					MCube * cube = getCube(x, y, z);
+					if(cube->getDraw())
+					{
+						glPushMatrix();
+						glTranslatef(x,y,z);
+						glUseProgram(shader);
+						YRenderer* Renderer = YEngine::getInstance()->Renderer;
+						Renderer->updateMatricesFromOgl();
+						Renderer->sendMatricesToShader(shader);
+						GLuint var = glGetUniformLocation(shader, "cube_color");
+						YVec3<float> color = GetColor(cube->getType());
+						glUniform4f(var, color.X, color.Y, color.Z, 1.0f);
+						vboCube->render();
+						glPopMatrix();
+						
+					}
+				}
 	}
 
+	YVec3<float> GetColor(MCube::MCubeType type)
+	{
+		switch (type)
+		{
+			case MCube::MCubeType::CUBE_HERBE:
+				return YVec3<float>(0, 1.f, 0);
+			case MCube::MCubeType::CUBE_EAU:
+				return YVec3<float>(0, 1.f, 1.f);
+			case MCube::MCubeType::CUBE_TERRE:
+				return YVec3<float>(94.f / 255.0f, 77.f / 255.0f, 56.f/255.f);
+			default:
+				return YVec3<float>(1.f,0,0);			
+		}
+	}
+
+	
 	void render_world_vbo(bool debug,bool doTransparent)
 	{
 		glDisable(GL_BLEND);
 		//Dessiner les chunks opaques
-				
+		
+		glUseProgram(ShaderWorld);
+		
+		for (int x = 0; x < MAT_SIZE; ++x)
+			for (int y = 0; y < MAT_SIZE; ++y)
+				for (int z = 0; z < MAT_HEIGHT; ++z){
+					glPushMatrix();
+					glTranslatef(x*64,y*64,z*64);
+					YEngine::getInstance()->Renderer->updateMatricesFromOgl();
+					YEngine::getInstance()->Renderer->sendMatricesToShader(ShaderWorld);
+					Chunks[x][y][z]->VboOpaque->render();
+					glPopMatrix();
+				}
+		
+		
 		glEnable(GL_BLEND);
-		//Dessiner les chunks transparents
+		glPushMatrix();
+		glUseProgram(ShaderWorld);
+		for (int x = 0; x < MAT_SIZE; ++x)
+			for (int y = 0; y < MAT_SIZE; ++y)
+				for (int z = 0; z < MAT_HEIGHT; ++z)
+					Chunks[x][y][z]->VboTransparent->render();
+		glPopMatrix();
 	}
 
 	/**

@@ -41,23 +41,132 @@ class MChunk
 			SAFEDELETE(VboTransparent);
 
 			//Compter les sommets
+			int nbVertexOpaque (0);
+			int nbVertexTransparent (0);
+			foreachVisibleTriangle(true, &nbVertexOpaque, &nbVertexTransparent, VboOpaque, VboTransparent);
 
+			// Définir les VBOs
+			VboOpaque = new YVbo(3, nbVertexOpaque, YVbo::PACK_BY_ELEMENT_TYPE);
+			VboOpaque->setElementDescription(0, YVbo::Element(3)); //Sommet
+			VboOpaque->setElementDescription(1, YVbo::Element(3)); //Normale
+			VboOpaque->setElementDescription(2, YVbo::Element(2)); //UV
+			VboOpaque->setElementDescription(3, YVbo::Element(1)); //Type
+			
+
+			VboTransparent = new YVbo(3, nbVertexTransparent, YVbo::PACK_BY_ELEMENT_TYPE);
+			VboTransparent->setElementDescription(0, YVbo::Element(3)); //Sommet
+			VboTransparent->setElementDescription(1, YVbo::Element(3)); //Normale
+			VboTransparent->setElementDescription(2, YVbo::Element(2)); //UV
+			VboTransparent->setElementDescription(3, YVbo::Element(1)); //Type
+			
+					
 			//Créer les VBO
+			VboTransparent->createVboCpu();
+			VboOpaque->createVboCpu();
 
 			//Remplir les VBO
+			foreachVisibleTriangle(false, &nbVertexOpaque, &nbVertexTransparent, VboOpaque, VboTransparent);
+
+			VboOpaque->createVboGpu();
+			VboOpaque->deleteVboCpu();
 			
+			VboTransparent->createVboGpu();
+			VboTransparent->deleteVboCpu();
 		}
 
 		//Ajoute un quad du cube. Attention CCW
 		int addQuadToVbo(YVbo * vbo, int iVertice, YVec3f & a, YVec3f & b, YVec3f & c, YVec3f & d, float type) {
 
+			vector<float> uv[4] = { {0,0},{0,0},{0,0},{0,0} }; // TODO Add support for UVs
+			YVec3 normal = (b - a).cross(d - a).normalize();
+			vbo->setElementValue(0, iVertice, a.X, a.Y, a.Z); //Sommet (lié au layout(0) du shader)
+			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);   //Normale (lié au layout(1) du shader)
+			vbo->setElementValue(2, iVertice, uv[3][0], uv[3][1]);
+			vbo->setElementValue(3, iVertice, type);
+			++iVertice;
+			vbo->setElementValue(0, iVertice, b.X, b.Y, b.Z); //Sommet (lié au layout(0) du shader)
+			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);//Normale (lié au layout(1) du shader)
+			vbo->setElementValue(2, iVertice, uv[2][0], uv[1][1]);
+			vbo->setElementValue(3, iVertice, type);
+			++iVertice;
+			vbo->setElementValue(0, iVertice, c.X, c.Y, c.Z);
+			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z); //Normale (lié au layout(1) du shader)
+			vbo->setElementValue(2, iVertice, uv[1][0], uv[1][1]);
+			vbo->setElementValue(3, iVertice, type);
+			++iVertice;
+			vbo->setElementValue(0, iVertice, c.X, c.Y, c.Z);
+			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z); //Normale (lié au layout(1) du shader)
+			vbo->setElementValue(2, iVertice, uv[1][0], uv[1][1]);
+			vbo->setElementValue(3, iVertice, type);
+			++iVertice;
+			vbo->setElementValue(0, iVertice, d.X, d.Y, d.Z);
+			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);   //Normale (lié au layout(1) du shader)
+			vbo->setElementValue(2, iVertice, uv[0][0], uv[0][1]);
+			vbo->setElementValue(3, iVertice, type);
+			++iVertice;
+			vbo->setElementValue(0, iVertice, a.X, a.Y, a.Z);; //Sommet (lié au layout(0) du shader)
+			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);  //Normale (lié au layout(1) du shader)
+			vbo->setElementValue(2, iVertice, uv[3][0], uv[3][1]);
+			vbo->setElementValue(3, iVertice, type);
 			return 6;
 		}
 
 		//Permet de compter les triangles ou des les ajouter aux VBO
 		void foreachVisibleTriangle(bool countOnly, int * nbVertOpaque, int * nbVertTransp, YVbo * VboOpaque, YVbo * VboTrasparent) {
+			int curOpaqueVertices(0);
+			int curTransVertices(0);
+			
+			for (int x = 0; x < CHUNK_SIZE; ++x)
+				for (int y = 0; y < CHUNK_SIZE; ++y)
+					for (int z = 0; z < CHUNK_SIZE; ++z)
+					{
+						MCube* cube = &_Cubes[x][y][z]; 
+						if(cube->getDraw())
 
+							if(cube->isOpaque())
+							{						
+								
+								if(countOnly)
+								{
+									*nbVertOpaque += 36;
+								} else
+								{
+									const float xf = float(x);
+									const float yf = float(y);
+									const float zf = float(z);
+									
+									YVec3f v[] = { {1.f + xf, yf, zf} , {xf + 1.f,yf + 1.f,zf}, {xf + 1.f,yf + 1,zf + 1},{xf + 1,yf,zf + 1}, {xf,yf,zf + 1}, {xf,yf + 1,zf + 1}, {xf,yf + 1, zf}, {xf,yf,zf} };						
+									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[0] , v[1], v[2], v[3] , cube->getType()); 
+									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[1] , v[6], v[5], v[2] , cube->getType()); 
+									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[6], v[7], v[4], v[5], cube->getType());
+									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[7], v[0], v[3], v[4], cube->getType());
+									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[3], v[2], v[5], v[4], cube->getType());
+									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[0], v[7], v[6], v[1], cube->getType());
+								}
+							} else if (cube->isTransparent())
+							{
+								if (countOnly)
+								{
+									*nbVertTransp += 36;
+								}
+								else
+								{
+									const float xf = float(x);
+									const float yf = float(y);
+									const float zf = float(z);
 
+									YVec3f v[] = { {1.f + xf, yf, zf} , {xf + 1.f,yf + 1.f,zf}, {xf + 1.f,yf + 1,zf + 1},{xf + 1,yf,zf + 1}, {xf,yf,zf + 1}, {xf,yf + 1,zf + 1}, {xf,yf + 1, zf}, {xf,yf,zf} };
+									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[0], v[1], v[2], v[3], cube->getType());
+									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[1], v[6], v[5], v[2], cube->getType());
+									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[6], v[7], v[4], v[5], cube->getType());
+									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[7], v[0], v[3], v[4], cube->getType());
+									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[3], v[2], v[5], v[4], cube->getType());
+									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[0], v[7], v[6], v[1], cube->getType());
+								}
+							}
+					}
+			cout << "CurOpaque: " << curOpaqueVertices << "  total  " << *nbVertOpaque << endl;
+			cout << "CurOpaque: " << curTransVertices << "  total  " << *nbVertTransp << endl;
 		}
 
 		/*
@@ -195,12 +304,13 @@ class MChunk
 
 		void disableHiddenCubes(void)
 		{
+			cout << "hide" << endl;
 			for(int x=0;x<CHUNK_SIZE;x++)
 				for(int y=0;y<CHUNK_SIZE;y++)
 					for(int z=0;z<CHUNK_SIZE;z++)
 					{
 						_Cubes[x][y][z].setDraw(true);
-						if(test_hidden(x,y,z))
+						if(!_Cubes[x][y][z].isPickable() || test_hidden(x,y,z))
 							_Cubes[x][y][z].setDraw(false);
 					}
 		}

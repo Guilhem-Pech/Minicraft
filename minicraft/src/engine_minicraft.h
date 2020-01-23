@@ -25,14 +25,19 @@ public :
 	GLuint ShaderSun;
 	
 	YVbo * VboCube;
+	MWorld* World;
+
+	GLuint ShaderCube;
+
 	void init() 
 	{
 		YLog::log(YLog::ENGINE_INFO,"Minicraft Started : initialisation");
 
 		Renderer->setBackgroundColor(YColor(0.0f,0.0f,0.0f,1.0f));
-		Renderer->Camera->setPosition(YVec3f(10, 10, 10));
+		Renderer->Camera->setPosition(YVec3f(100, 100, 100));
 		Renderer->Camera->setLookAt(YVec3f());
 
+		
 			   			   		
 		//Creation du VBO
 		VboCube = CreateCube({{1,0,0} , {1,1,0}, {1,1,1},{1,0,1}, {0,0,1}, {0,1,1}, {0,1,0}, {0,0,0}});
@@ -43,9 +48,16 @@ public :
 		//On relache la mémoire CPU
 		VboCube->deleteVboCpu();
 
+		
 
+		//Pour créer le monde
+		World = new MWorld();
+		World->init_world(0);
+
+				
 		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
 		ShaderSun = Renderer->createProgram("shaders/sun");
+		ShaderCube = Renderer->createProgram("shaders/cube");
 		//Exemple d'utilisation d'un shader
 		
 	}
@@ -175,12 +187,14 @@ public :
 		Renderer->sendMatricesToShader(ShaderSun);
 		VboCube->render();
 		glPopMatrix();
-		//glDisable(GL_CULL_FACE);
-		//glDisable(GL_DEPTH_TEST);
+
+
+		//Pour dessiner le monde (fonction à coder ensuite)
+		glPushMatrix();
+		//glUseProgram(ShaderCube);
+		World->render_world_vbo(true,true);
+		glPopMatrix();
 		
-		VboCube->render(); //Demande le rendu du VBO
-
-
 	}
 
 	bool getSunDirFromDayTime(YVec3f & sunDir, float mnLever, float mnCoucher, float boostTime)
@@ -282,7 +296,7 @@ public :
 		int right = 'd';
 	};
 
-	KeyMap frKeyboard = { 'z','s','q','d' }; // Forward, Backward, Left, Right
+	KeyMap frKeyboard = { 'w','s','a','d' }; // Forward, Backward, Left, Right
 
 	void keyPressed(int key, bool special, bool down, int p1, int p2) 
 	{	
@@ -330,10 +344,7 @@ public :
 			case GLUT_MIDDLE_BUTTON :
 				middleClickDown = state == GLUT_DOWN;
 				break;
-		}
-			
-			
-		
+		}		
 	}
 
 	float prevMouseX;
@@ -341,16 +352,16 @@ public :
 	float prevMouseY;
 
 
-	const double Pi = M_PI;
-	
-	inline float DegToRad(float x)
+	const float Pi = M_PI;
+
+	float degToRad(const float x) const
 	{
-		return x / 180 * Pi;
+		return x / 180.f * Pi;
 	}
 
-	inline float RadToDeg(float x)
+	float radToDeg(const float x) const
 	{
-		return x / Pi * 180;
+		return x / Pi * 180.f;
 	}
 
 
@@ -360,8 +371,8 @@ public :
 	{
 		if(rightClickDown)
 		{
-			float xDelta = -DegToRad(x - prevMouseX);
-			float yDelta =	DegToRad(y - prevMouseY);
+			float xDelta = -degToRad(x - prevMouseX);
+			float yDelta =	degToRad(y - prevMouseY);
 			if(ctrlDown)
 			{
 				Renderer->Camera->rotateUpAround(yDelta);
