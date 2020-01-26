@@ -152,10 +152,32 @@ public:
 	*/
 	void rotateUp(float angle)
 	{
+		/*  // OLD
 		Direction.rotate(RightVec, angle);
 		LookAt = Position + Direction * (LookAt-Position).getSize();
 		updateVecs();
+		*/
 
+		YVec3f last = Direction;
+		Direction.rotate(RightVec, angle);
+		LookAt = Position + Direction;
+		if (!updateVecsUp()) {
+			Direction = last;
+			LookAt = Position + Direction;
+			updateVecsUp();
+		}
+
+	}
+
+	bool updateVecsUp(void) {
+		Direction = (LookAt - Position).normalize();
+		RightVec = UpRef.cross(Direction);
+		if (RightVec.getSize() < 0.15f) {
+			return false;
+		}
+		RightVec = RightVec.normalize();
+		UpVec = Direction.cross(RightVec).normalize();
+		return true;
 	}
 
 	/**
@@ -175,19 +197,18 @@ public:
 	void rotateUpAround(float angle)
 	{
 		Position -= LookAt;
-
-		//On ne monte pas trop haut pour ne pas passer de l'autre coté
-		YVec3f previousPos = Position;
+		const YVec3f previousPos = Position;
 		Position.rotate(RightVec, angle);
-		YVec3f normPos = Position;
-		normPos.normalize();
-		float newAngle = normPos.dot(UpRef);
+		const YVec3f normPos = Position.normalize();
+		const float newAngle = normPos.dot(UpRef);
 		if (newAngle > 0.99 || newAngle < -0.99)
 			Position = previousPos;
 
 		Position += LookAt;
 		updateVecs();
 	}
+
+	
 
 	/**
 	* Calcul du bon repère de départ pour la matrice monde
