@@ -10,17 +10,17 @@
 
 class MWorld
 {
-public :
+public:
 	typedef uint8 MAxis;
 	static const int AXIS_X = 0b00000001;
 	static const int AXIS_Y = 0b00000010;
 	static const int AXIS_Z = 0b00000100;
 
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	static const int MAT_SIZE = 1; //en nombre de chunks
-	#else
+#else
 	static const int MAT_SIZE = 3; //en nombre de chunks
-	#endif // DEBUG
+#endif // DEBUG
 
 	static const int MAT_HEIGHT = 1; //en nombre de chunks
 	static const int MAT_SIZE_CUBES = (MAT_SIZE * MChunk::CHUNK_SIZE);
@@ -29,121 +29,127 @@ public :
 	static const int MAT_HEIGHT_METERS = (MAT_HEIGHT * MChunk::CHUNK_SIZE  * MCube::CUBE_SIZE);
 
 	MChunk * Chunks[MAT_SIZE][MAT_SIZE][MAT_HEIGHT];
-	
+
 	MWorld()
 	{
 		//On crée les chunks
-		for(int x=0;x<MAT_SIZE;x++)
-			for(int y=0;y<MAT_SIZE;y++)
-				for(int z=0;z<MAT_HEIGHT;z++)
-					Chunks[x][y][z] = new MChunk(x,y,z);
+		for (int x = 0; x < MAT_SIZE; x++)
+			for (int y = 0; y < MAT_SIZE; y++)
+				for (int z = 0; z < MAT_HEIGHT; z++)
+					Chunks[x][y][z] = new MChunk(x, y, z);
 
-		for(int x=0;x<MAT_SIZE;x++)
-			for(int y=0;y<MAT_SIZE;y++)
-				for(int z=0;z<MAT_HEIGHT;z++)
+		for (int x = 0; x < MAT_SIZE; x++)
+			for (int y = 0; y < MAT_SIZE; y++)
+				for (int z = 0; z < MAT_HEIGHT; z++)
 				{
 					MChunk * cxPrev = NULL;
-					if(x > 0)
-						cxPrev = Chunks[x-1][y][z];
+					if (x > 0)
+						cxPrev = Chunks[x - 1][y][z];
 					MChunk * cxNext = NULL;
-					if(x < MAT_SIZE-1)
-						cxNext = Chunks[x+1][y][z];
+					if (x < MAT_SIZE - 1)
+						cxNext = Chunks[x + 1][y][z];
 
 					MChunk * cyPrev = NULL;
-					if(y > 0)
-						cyPrev = Chunks[x][y-1][z];
+					if (y > 0)
+						cyPrev = Chunks[x][y - 1][z];
 					MChunk * cyNext = NULL;
-					if(y < MAT_SIZE-1)
-						cyNext = Chunks[x][y+1][z];
+					if (y < MAT_SIZE - 1)
+						cyNext = Chunks[x][y + 1][z];
 
 					MChunk * czPrev = NULL;
-					if(z > 0)
-						czPrev = Chunks[x][y][z-1];
+					if (z > 0)
+						czPrev = Chunks[x][y][z - 1];
 					MChunk * czNext = NULL;
-					if(z < MAT_HEIGHT-1)
-						czNext = Chunks[x][y][z+1];
+					if (z < MAT_HEIGHT - 1)
+						czNext = Chunks[x][y][z + 1];
 
-					Chunks[x][y][z]->setVoisins(cxPrev,cxNext,cyPrev,cyNext,czPrev,czNext);
+					Chunks[x][y][z]->setVoisins(cxPrev, cxNext, cyPrev, cyNext, czPrev, czNext);
 				}
 
-					
+
 	}
 
 	inline MCube * getCube(int x, int y, int z)
-	{	
-		if(x < 0)x = 0;
-		if(y < 0)y = 0;
-		if(z < 0)z = 0;
-		if(x >= MAT_SIZE * MChunk::CHUNK_SIZE) x = (MAT_SIZE * MChunk::CHUNK_SIZE)-1;
-		if(y >= MAT_SIZE * MChunk::CHUNK_SIZE) y = (MAT_SIZE * MChunk::CHUNK_SIZE)-1;
-		if(z >= MAT_HEIGHT * MChunk::CHUNK_SIZE) z = (MAT_HEIGHT * MChunk::CHUNK_SIZE)-1;
+	{
+		if (x < 0)x = 0;
+		if (y < 0)y = 0;
+		if (z < 0)z = 0;
+		if (x >= MAT_SIZE * MChunk::CHUNK_SIZE) x = (MAT_SIZE * MChunk::CHUNK_SIZE) - 1;
+		if (y >= MAT_SIZE * MChunk::CHUNK_SIZE) y = (MAT_SIZE * MChunk::CHUNK_SIZE) - 1;
+		if (z >= MAT_HEIGHT * MChunk::CHUNK_SIZE) z = (MAT_HEIGHT * MChunk::CHUNK_SIZE) - 1;
 
 		return &(Chunks[x / MChunk::CHUNK_SIZE][y / MChunk::CHUNK_SIZE][z / MChunk::CHUNK_SIZE]->_Cubes[x % MChunk::CHUNK_SIZE][y % MChunk::CHUNK_SIZE][z % MChunk::CHUNK_SIZE]);
 	}
 
 	void updateCube(int x, int y, int z)
-	{	
-		if(x < 0)x = 0;
-		if(y < 0)y = 0;
-		if(z < 0)z = 0;
-		if(x >= MAT_SIZE * MChunk::CHUNK_SIZE)x = (MAT_SIZE * MChunk::CHUNK_SIZE)-1;
-		if(y >= MAT_SIZE * MChunk::CHUNK_SIZE)y = (MAT_SIZE * MChunk::CHUNK_SIZE)-1;
+	{
+		if (x < 0)x = 0;
+		if (y < 0)y = 0;
+		if (z < 0)z = 0;
+		if (x >= MAT_SIZE * MChunk::CHUNK_SIZE)x = (MAT_SIZE * MChunk::CHUNK_SIZE) - 1;
+		if (y >= MAT_SIZE * MChunk::CHUNK_SIZE)y = (MAT_SIZE * MChunk::CHUNK_SIZE) - 1;
 		if (z >= MAT_HEIGHT * MChunk::CHUNK_SIZE)z = (MAT_HEIGHT * MChunk::CHUNK_SIZE) - 1; {
 			Chunks[x / MChunk::CHUNK_SIZE][y / MChunk::CHUNK_SIZE][z / MChunk::CHUNK_SIZE]->disableHiddenCubes();
 			Chunks[x / MChunk::CHUNK_SIZE][y / MChunk::CHUNK_SIZE][z / MChunk::CHUNK_SIZE]->toVbos();
 		}
-		
+
 	}
 
 	void deleteCube(int x, int y, int z)
 	{
-		MCube * cube = getCube(x,y,z);
+		MCube * cube = getCube(x, y, z);
 		cube->setType(MCube::CUBE_AIR);
 		cube->setDraw(false);
-		cube = getCube(x-1,y,z);
-		updateCube(x,y,z);	
+		cube = getCube(x - 1, y, z);
+		updateCube(x, y, z);
 	}
 	GLuint ShaderWorld;
 	void init_world(int seed)
 	{
 		ShaderWorld = YEngine::getInstance()->Renderer->createProgram("shaders/world");
-		YLog::log(YLog::USER_INFO,(toString("Creation du monde seed ")+toString(seed)).c_str());
+		YLog::log(YLog::USER_INFO, (toString("Creation du monde seed ") + toString(seed)).c_str());
 
 		srand(seed);
-		
+
 		//Reset du monde
-		for(int x=0;x<MAT_SIZE;x++)
-			for(int y=0;y<MAT_SIZE;y++)
-				for(int z=0;z<MAT_HEIGHT;z++)
+		for (int x = 0; x < MAT_SIZE; x++)
+			for (int y = 0; y < MAT_SIZE; y++)
+				for (int z = 0; z < MAT_HEIGHT; z++)
 					Chunks[x][y][z]->reset();
 
 		//Générer ici le monde en modifiant les cubes
 		//Utiliser getCubes() 
 		YPerlin noise = YPerlin();
-		noise.setFreq(0.03f);
-		
+		YPerlin noise2 = YPerlin();
+		noise.setFreq(0.04f);
+		noise2.setFreq(0.02f);
+
 		for (int x = 0; x < MAT_SIZE_CUBES; x++)
 			for (int y = 0; y < MAT_SIZE_CUBES; y++)
 				for (int z = 0; z < MAT_HEIGHT_CUBES; z++)
 				{
-					float val = noise.sample((float)x, (float)y, (float)z);
+					float val = noise.sample(float(x), float(y), float(z));
+					float val2 = noise2.sample(float(x), float(y), float(z));
+					float noiseVal = (val + val2) / 2;
+
+
 					MCube* cube = getCube(x, y, z);
 					//cube->setType(MCube::CUBE_TERRE);
-					
-					if (val > 0.5f)
+
+					if (noiseVal > 0.5f)
 						cube->setType(MCube::CUBE_HERBE);
-					if (val > 0.51f)
+					if (noiseVal > 0.51f)
 						cube->setType(MCube::CUBE_TERRE);
-					if (val < 0.5 && z <= 0.1)
+					if (noiseVal < 0.5 && z <= 0.1)
 						cube->setType(MCube::CUBE_EAU);
-					if (val > 0.56)
+					if (noiseVal > 0.56)
 						cube->setType(MCube::CUBE_EAU);
-					
+
 				}
-		
-		for(int x=0;x<MAT_SIZE;x++)
-			for(int y=0;y<MAT_SIZE;y++)
-				for(int z=0;z<MAT_HEIGHT;z++)
+
+		for (int x = 0; x < MAT_SIZE; ++x)
+			for (int y = 0; y < MAT_SIZE; ++y)
+				for (int z = 0; z < MAT_HEIGHT; ++z)
 					Chunks[x][y][z]->disableHiddenCubes();
 
 		add_world_to_vbo();
@@ -151,14 +157,14 @@ public :
 
 	void add_world_to_vbo(void)
 	{
-		for (int x = 0; x<MAT_SIZE; x++)
-			for (int y = 0; y<MAT_SIZE; y++)
-				for (int z = 0; z<MAT_HEIGHT; z++)
+		for (int x = 0; x < MAT_SIZE; x++)
+			for (int y = 0; y < MAT_SIZE; y++)
+				for (int z = 0; z < MAT_HEIGHT; z++)
 				{
 					Chunks[x][y][z]->toVbos();
 				}
 	}
-	
+
 	//Boites de collisions plus petites que deux cubes
 	MAxis getMinCol(YVec3f pos, YVec3f dir, float width, float height, float & valueColMin, bool oneShot)
 	{
@@ -358,18 +364,18 @@ public :
 
 		return axis;
 	}
-		
-	void render_world_basic(GLuint shader, YVbo * vboCube) 
+
+	void render_world_basic(GLuint shader, YVbo * vboCube)
 	{
 		for (int x = MAT_SIZE_CUBES - 1; x >= 0; --x)
 			for (int y = MAT_SIZE_CUBES - 1; y >= 0; --y)
 				for (int z = MAT_HEIGHT_CUBES - 1; z >= 0; --z)
 				{
 					MCube * cube = getCube(x, y, z);
-					if(cube->getDraw())
+					if (cube->getDraw())
 					{
 						glPushMatrix();
-						glTranslatef(x,y,z);
+						glTranslatef(x, y, z);
 						glUseProgram(shader);
 						YRenderer* Renderer = YEngine::getInstance()->Renderer;
 						Renderer->updateMatricesFromOgl();
@@ -379,7 +385,7 @@ public :
 						glUniform4f(var, color.X, color.Y, color.Z, 1.0f);
 						vboCube->render();
 						glPopMatrix();
-						
+
 					}
 				}
 	}
@@ -388,40 +394,40 @@ public :
 	{
 		switch (type)
 		{
-			case MCube::MCubeType::CUBE_HERBE:
-				return YVec3<float>(0, 1.f, 0);
-			case MCube::MCubeType::CUBE_EAU:
-				return YVec3<float>(0, 1.f, 1.f);
-			case MCube::MCubeType::CUBE_TERRE:
-				return YVec3<float>(94.f / 255.0f, 77.f / 255.0f, 56.f/255.f);
-			default:
-				return YVec3<float>(1.f,0,0);			
+		case MCube::MCubeType::CUBE_HERBE:
+			return YVec3<float>(0, 1.f, 0);
+		case MCube::MCubeType::CUBE_EAU:
+			return YVec3<float>(0, 1.f, 1.f);
+		case MCube::MCubeType::CUBE_TERRE:
+			return YVec3<float>(94.f / 255.0f, 77.f / 255.0f, 56.f / 255.f);
+		default:
+			return YVec3<float>(1.f, 0, 0);
 		}
 	}
 
-	
-	void render_world_vbo(bool debug,bool doTransparent)
+
+	void render_world_vbo(bool debug, bool doTransparent)
 	{
 		glDisable(GL_BLEND);
 		//Dessiner les chunks opaques
-		
+
 		glUseProgram(ShaderWorld);
-		
+
 		for (int x = 0; x < MAT_SIZE; ++x)
 			for (int y = 0; y < MAT_SIZE; ++y)
-				for (int z = 0; z < MAT_HEIGHT; ++z){
+				for (int z = 0; z < MAT_HEIGHT; ++z) {
 					glPushMatrix();
-					glTranslatef(x*64,y*64,z*64);
+					glTranslatef(x * MChunk::CHUNK_SIZE, y * MChunk::CHUNK_SIZE, z * MChunk::CHUNK_SIZE);
 					YEngine::getInstance()->Renderer->updateMatricesFromOgl();
 					YEngine::getInstance()->Renderer->sendMatricesToShader(ShaderWorld);
 					Chunks[x][y][z]->VboOpaque->render();
 					glPopMatrix();
 				}
-		
-		
+
+
 		glEnable(GL_BLEND);
 		glPushMatrix();
-		glUseProgram(ShaderWorld);
+		//glUseProgram(ShaderWorld);
 		for (int x = 0; x < MAT_SIZE; ++x)
 			for (int y = 0; y < MAT_SIZE; ++y)
 				for (int z = 0; z < MAT_HEIGHT; ++z)
@@ -437,7 +443,7 @@ public :
 		const YVec3f & p1Plan, const YVec3f & p2Plan, const YVec3f & p3Plan,
 		YVec3f & inter)
 	{
-		
+
 		return true;
 	}
 
@@ -449,7 +455,7 @@ public :
 		const YVec3f & p1, const YVec3f & p2, const YVec3f & p3, const  YVec3f & p4,
 		YVec3f & inter)
 	{
-		
+
 		return false;
 	}
 
@@ -457,7 +463,7 @@ public :
 		YVec3f & inter,
 		int &xCube, int&yCube, int&zCube)
 	{
-		
+
 		return false;
 	}
 

@@ -73,40 +73,40 @@ class MChunk
 			VboTransparent->createVboGpu();
 			VboTransparent->deleteVboCpu();
 		}
-
-		//Ajoute un quad du cube. Attention CCW
+		const vector<float> uv[4] = { {0,0},{0,0},{0,0},{0,0} }; // TODO Add support for UVs
+	//Ajoute un quad du cube. Attention CCW
 		int addQuadToVbo(YVbo * vbo, int iVertice, YVec3f & a, YVec3f & b, YVec3f & c, YVec3f & d, float type) {
 
-			vector<float> uv[4] = { {0,0},{0,0},{0,0},{0,0} }; // TODO Add support for UVs
+			
 			YVec3 normal = (b - a).cross(d - a).normalize();
 			vbo->setElementValue(0, iVertice, a.X, a.Y, a.Z); //Sommet (lié au layout(0) du shader)
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);   //Normale (lié au layout(1) du shader)
-			vbo->setElementValue(2, iVertice, uv[3][0], uv[3][1]);
+			vbo->setElementValue(2, iVertice, 0, 0);
 			vbo->setElementValue(3, iVertice, type);
 			++iVertice;
 			vbo->setElementValue(0, iVertice, b.X, b.Y, b.Z); //Sommet (lié au layout(0) du shader)
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);//Normale (lié au layout(1) du shader)
-			vbo->setElementValue(2, iVertice, uv[2][0], uv[1][1]);
+			vbo->setElementValue(2, iVertice, 0, 0);
 			vbo->setElementValue(3, iVertice, type);
 			++iVertice;
 			vbo->setElementValue(0, iVertice, c.X, c.Y, c.Z);
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z); //Normale (lié au layout(1) du shader)
-			vbo->setElementValue(2, iVertice, uv[1][0], uv[1][1]);
+			vbo->setElementValue(2, iVertice, 0, 0);
 			vbo->setElementValue(3, iVertice, type);
 			++iVertice;
 			vbo->setElementValue(0, iVertice, c.X, c.Y, c.Z);
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z); //Normale (lié au layout(1) du shader)
-			vbo->setElementValue(2, iVertice, uv[1][0], uv[1][1]);
+			vbo->setElementValue(2, iVertice, 0, 0);
 			vbo->setElementValue(3, iVertice, type);
 			++iVertice;
 			vbo->setElementValue(0, iVertice, d.X, d.Y, d.Z);
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);   //Normale (lié au layout(1) du shader)
-			vbo->setElementValue(2, iVertice, uv[0][0], uv[0][1]);
+			vbo->setElementValue(2, iVertice, 0, 0);
 			vbo->setElementValue(3, iVertice, type);
 			++iVertice;
 			vbo->setElementValue(0, iVertice, a.X, a.Y, a.Z);; //Sommet (lié au layout(0) du shader)
 			vbo->setElementValue(1, iVertice, normal.X, normal.Y, normal.Z);  //Normale (lié au layout(1) du shader)
-			vbo->setElementValue(2, iVertice, uv[3][0], uv[3][1]);
+			vbo->setElementValue(2, iVertice, 0, 0);
 			vbo->setElementValue(3, iVertice, type);
 			
 			return 6;
