@@ -29,6 +29,8 @@ public :
 	MAvatar* avatar;
 	GLuint ShaderCube;
 
+	GLuint ShaderWorld;
+
 	void init() 
 	{
 		YLog::log(YLog::ENGINE_INFO,"Minicraft Started : initialisation");
@@ -54,10 +56,12 @@ public :
 		World = new MWorld();
 		World->init_world(0);
 		avatar = new MAvatar(Renderer->Camera, World);
-				
+		avatar->toVBO();
+		posAvatar = &avatar->Position;
 		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
 		ShaderSun = Renderer->createProgram("shaders/sun");
 		ShaderCube = Renderer->createProgram("shaders/cube");
+		ShaderWorld = Renderer->createProgram("shaders/world");
 		//Exemple d'utilisation d'un shader
 		
 	}
@@ -157,7 +161,7 @@ public :
 	YColor SunColor;
 
 	YColor SkyColor;
-	
+	YVec3f * posAvatar;
 	void renderObjects() 
 	{
 		
@@ -198,6 +202,16 @@ public :
 		//World->render_world_basic(ShaderCube,VboCube);
 		World->render_world_vbo(true,true);
 		glPopMatrix();
+
+
+		glPushMatrix();
+		
+		glTranslatef(posAvatar->X, posAvatar->Y, posAvatar->Z);
+		Renderer->updateMatricesFromOgl();
+		Renderer->sendMatricesToShader(ShaderWorld);
+		avatar->render();
+		glPopMatrix();
+		
 		
 	}
 
@@ -213,7 +227,7 @@ public :
 			boostTime -= 24 * 60;
 
 		//Temps écoulé depuis le début de la journée
-		float fTime = (float)(t.wHour * 60 + t.wMinute);
+		float fTime = float(t.wHour * 60 + t.wMinute);
 		fTime += boostTime;
 		while (fTime > 24 * 60)
 			fTime -= 24 * 60;
