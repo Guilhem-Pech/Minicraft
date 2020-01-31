@@ -1,4 +1,4 @@
-#ifndef __WORLD_H__
+ï»¿#ifndef __WORLD_H__
 #define __WORLD_H__
 
 #include "external/gl/glew.h"
@@ -7,6 +7,7 @@
 #include "cube.h"
 #include "chunk.h"
 #include "engine/noise/perlin.h"
+#include "../util.h"
 
 class MWorld
 {
@@ -32,7 +33,7 @@ public:
 
 	MWorld()
 	{
-		//On crée les chunks
+		//On crÃ©e les chunks
 		for (int x = 0; x < MAT_SIZE; x++)
 			for (int y = 0; y < MAT_SIZE; y++)
 				for (int z = 0; z < MAT_HEIGHT; z++)
@@ -95,6 +96,7 @@ public:
 
 	}
 
+	
 	void deleteCube(int x, int y, int z)
 	{
 		MCube * cube = getCube(x, y, z);
@@ -117,20 +119,21 @@ public:
 				for (int z = 0; z < MAT_HEIGHT; z++)
 					Chunks[x][y][z]->reset();
 
-		//Générer ici le monde en modifiant les cubes
+		//GÃ©nÃ©rer ici le monde en modifiant les cubes
 		//Utiliser getCubes() 
 		YPerlin noise = YPerlin();
 		YPerlin noise2 = YPerlin();
 		noise.setFreq(0.04f);
 		noise2.setFreq(0.02f);
-
-		for (int x = 0; x < MAT_SIZE_CUBES; x++)
-			for (int y = 0; y < MAT_SIZE_CUBES; y++)
-				for (int z = 0; z < MAT_HEIGHT_CUBES; z++)
-				{
-					float val = noise.sample(float(x), float(y), float(z));
+		float r = 0.3f;
+		
+		for (int x = 0; x < MAT_SIZE_CUBES; ++x)
+			for (int y = 0; y < MAT_SIZE_CUBES; ++y)
+				for (int z = 0; z < MAT_HEIGHT_CUBES; ++z)
+				{					
+					float val = noise.sample(float(x) , float(y), float(z));
 					float val2 = noise2.sample(float(x), float(y), float(z));
-					float noiseVal = (val + val2) / 2;
+					float noiseVal = processNoise((val * r + val2 * (1-r) ), z );
 
 
 					MCube* cube = getCube(x, y, z);
@@ -153,6 +156,12 @@ public:
 					Chunks[x][y][z]->disableHiddenCubes();
 
 		add_world_to_vbo();
+	}
+	
+	
+	float processNoise(float noise, int z)
+	{	
+		return noise * lerp(1.f, 0.6f, float(z) / MChunk::CHUNK_SIZE);
 	}
 
 	void add_world_to_vbo(void)
@@ -436,8 +445,8 @@ public:
 	}
 
 	/**
-	* Attention ce code n'est pas optimal, il est compréhensible. Il existe de nombreuses
-	* versions optimisées de ce calcul.
+	* Attention ce code n'est pas optimal, il est comprÃ©hensible. Il existe de nombreuses
+	* versions optimisÃ©es de ce calcul.
 	*/
 	inline bool intersecDroitePlan(const YVec3f & debSegment, const  YVec3f & finSegment,
 		const YVec3f & p1Plan, const YVec3f & p2Plan, const YVec3f & p3Plan,
@@ -448,8 +457,8 @@ public:
 	}
 
 	/**
-	* Attention ce code n'est pas optimal, il est compréhensible. Il existe de nombreuses
-	* versions optimisées de ce calcul. Il faut donner les points dans l'ordre (CW ou CCW)
+	* Attention ce code n'est pas optimal, il est comprÃ©hensible. Il existe de nombreuses
+	* versions optimisÃ©es de ce calcul. Il faut donner les points dans l'ordre (CW ou CCW)
 	*/
 	inline bool intersecDroiteCubeFace(const YVec3f & debSegment, const YVec3f & finSegment,
 		const YVec3f & p1, const YVec3f & p2, const YVec3f & p3, const  YVec3f & p4,
@@ -468,7 +477,7 @@ public:
 	}
 
 	/**
-	* De meme cette fonction peut être grandement opitimisée, on a priviligié la clarté
+	* De meme cette fonction peut Ãªtre grandement opitimisÃ©e, on a priviligiÃ© la clartÃ©
 	*/
 	bool getRayCollisionWithCube(const YVec3f & debSegment, const YVec3f & finSegment,
 		int x, int y, int z,

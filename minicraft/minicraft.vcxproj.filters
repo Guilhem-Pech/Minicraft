@@ -42,6 +42,9 @@
     <Filter Include="Fichiers d%27en-tête\engine\render">
       <UniqueIdentifier>{75d7c323-8b30-4ce8-97d7-f825373fcbfa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\engine\util">
+      <UniqueIdentifier>{868bb63f-ad44-42b9-9e79-990cbce6d0cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine_minicraft.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="..\src\engine\render\camera.h">
       <Filter>Fichiers d%27en-tête\engine\render</Filter>
+    </ClInclude>
+    <ClInclude Include="Util.h">
+      <Filter>Fichiers d%27en-tête\engine\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

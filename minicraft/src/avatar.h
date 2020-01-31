@@ -30,7 +30,13 @@ public:
 	MWorld * World;
 
 	YTimer _TimerStanding;
+	YVbo * VboOpaque;
 
+
+	static const int AVATAR_HEIGHT	= 2;
+	static const int AVATAR_WIDTH	= 1;
+	MCube _Cube[AVATAR_WIDTH][AVATAR_WIDTH][AVATAR_HEIGHT];
+	
 	MAvatar(YCamera * cam, MWorld * world)
 	{
 		Position = YVec3f((MWorld::MAT_SIZE_METERS) / 2, (MWorld::MAT_SIZE_METERS) / 2, (MWorld::MAT_HEIGHT_METERS));
@@ -50,6 +56,25 @@ public:
 		Run = false;
 	}
 
+	void initGeometry()
+	{
+		
+	}
+	
+	void toVBO()
+	{
+		SAFEDELETE(VboOpaque);
+		int nbVertexOpaque(0);
+		
+	
+		
+	}
+	
+	void render()
+	{
+		
+	}
+	
 	void update(float elapsed)
 	{
 		if (elapsed > 1.0f / 60.0f)

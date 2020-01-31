@@ -116,54 +116,110 @@ class MChunk
 		void foreachVisibleTriangle(bool countOnly, int * nbVertOpaque, int * nbVertTransp, YVbo * VboOpaque, YVbo * VboTrasparent) {
 			int curOpaqueVertices(0);
 			int curTransVertices(0);
-			
+			MCube *leftCube, *rightCube, *upCube, *downCube, *frontCube, *backCube = NULL;
 			for (int x = 0; x < CHUNK_SIZE; ++x)
 				for (int y = 0; y < CHUNK_SIZE; ++y)
 					for (int z = 0; z < CHUNK_SIZE; ++z)
 					{
-						MCube* cube = &_Cubes[x][y][z]; 
+						MCube* cube = &_Cubes[x][y][z];																	
+						get_surrounding_cubes(x, y, z, &backCube, &frontCube, &leftCube, &rightCube, &downCube, &upCube);
+						
 						if(cube->getDraw())
 
 							if(cube->isOpaque())
-							{						
-								
-								if(countOnly)
-								{
-									*nbVertOpaque += 36;
-								} else
-								{
+							{	
 									const float xf = float(x);
 									const float yf = float(y);
 									const float zf = float(z);
 									
 									YVec3f v[] = { {1.f + xf, yf, zf} , {xf + 1.f,yf + 1.f,zf}, {xf + 1.f,yf + 1,zf + 1},{xf + 1,yf,zf + 1}, {xf,yf,zf + 1}, {xf,yf + 1,zf + 1}, {xf,yf + 1, zf}, {xf,yf,zf} };						
-									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[0] , v[1], v[2], v[3] , cube->getType()); 
-									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[1] , v[6], v[5], v[2] , cube->getType()); 
-									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[6], v[7], v[4], v[5], cube->getType());
-									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[7], v[0], v[3], v[4], cube->getType());
-									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[3], v[2], v[5], v[4], cube->getType());
-									curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[0], v[7], v[6], v[1], cube->getType());
-								}
+									if(frontCube == nullptr || !frontCube->isOpaque())
+									{
+										if (countOnly)
+											*nbVertOpaque += 6;
+										else
+											curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[0], v[1], v[2], v[3], cube->getType());
+									}
+									if(rightCube == nullptr || !rightCube->isOpaque())
+									{
+										if (countOnly)
+											*nbVertOpaque += 6;
+										else
+											curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[1], v[6], v[5], v[2], cube->getType());
+									}
+									if (backCube == nullptr || !backCube->isOpaque()) {
+										if (countOnly)
+											*nbVertOpaque += 6;
+										else
+											curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[6], v[7], v[4], v[5], cube->getType());
+									}
+									if (leftCube == nullptr || !leftCube->isOpaque()) {
+										if (countOnly)
+											*nbVertOpaque += 6;
+										else
+											curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[7], v[0], v[3], v[4], cube->getType());
+									}
+									if (upCube == nullptr || !upCube->isOpaque()) {
+										if (countOnly)
+											*nbVertOpaque += 6;
+										else
+											curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[3], v[2], v[5], v[4], cube->getType());
+									}
+									if (downCube == nullptr || !downCube->isOpaque()) {
+										if (countOnly)
+											*nbVertOpaque += 6;
+										else
+											curOpaqueVertices += addQuadToVbo(VboOpaque, curOpaqueVertices, v[0], v[7], v[6], v[1], cube->getType());
+									}								
+									
+									
+								
 							} else if (cube->isTransparent())
 							{
-								if (countOnly)
-								{
-									*nbVertTransp += 36;
-								}
-								else
-								{
 									const float xf = float(x);
 									const float yf = float(y);
 									const float zf = float(z);
 
 									YVec3f v[] = { {1.f + xf, yf, zf} , {xf + 1.f,yf + 1.f,zf}, {xf + 1.f,yf + 1,zf + 1},{xf + 1,yf,zf + 1}, {xf,yf,zf + 1}, {xf,yf + 1,zf + 1}, {xf,yf + 1, zf}, {xf,yf,zf} };
-									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[0], v[1], v[2], v[3], cube->getType());
-									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[1], v[6], v[5], v[2], cube->getType());
-									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[6], v[7], v[4], v[5], cube->getType());
-									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[7], v[0], v[3], v[4], cube->getType());
-									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[3], v[2], v[5], v[4], cube->getType());
-									curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[0], v[7], v[6], v[1], cube->getType());
-								}
+									if (frontCube == nullptr || frontCube->getType() != cube->getType())
+									{
+										if (countOnly)
+											*nbVertTransp += 6;
+										else
+											curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[0], v[1], v[2], v[3], cube->getType());
+									}
+									if (rightCube == nullptr || rightCube->getType() != cube->getType())
+									{
+										if (countOnly)
+											*nbVertTransp += 6;
+										else
+											curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[1], v[6], v[5], v[2], cube->getType());
+									}
+									if (backCube == nullptr || backCube->getType() != cube->getType()) {
+										if (countOnly)
+											*nbVertTransp += 6;
+										else
+											curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[6], v[7], v[4], v[5], cube->getType());
+									}
+									if (leftCube == nullptr || leftCube->getType() != cube->getType()) {
+										if (countOnly)
+											*nbVertTransp += 6;
+										else
+											curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[7], v[0], v[3], v[4], cube->getType());
+									}
+									if (upCube == nullptr || upCube-> getType() != cube->getType()) {
+										if (countOnly)
+											*nbVertTransp += 6;
+										else
+											curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[3], v[2], v[5], v[4], cube->getType());
+									}
+									if (downCube == nullptr || downCube->getType() != cube->getType()) {
+										if (countOnly)
+											*nbVertTransp += 6;
+										else
+											curTransVertices += addQuadToVbo(VboTrasparent, curTransVertices, v[0], v[7], v[6], v[1], cube->getType());
+									}
+								
 							}
 					}
 			cout << "CurOpaque: " << curOpaqueVertices << "  total  " << *nbVertOpaque << endl;

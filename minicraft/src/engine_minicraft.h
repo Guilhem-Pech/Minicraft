@@ -26,7 +26,7 @@ public :
 	
 	YVbo * VboCube;
 	MWorld* World;
-
+	MAvatar* avatar;
 	GLuint ShaderCube;
 
 	void init() 
@@ -53,7 +53,7 @@ public :
 		//Pour créer le monde
 		World = new MWorld();
 		World->init_world(0);
-
+		avatar = new MAvatar(Renderer->Camera, World);
 				
 		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
 		ShaderSun = Renderer->createProgram("shaders/sun");
@@ -130,12 +130,13 @@ public :
 	
 	void update(float elapsed) 
 	{
-		processMovments();
+		processMovments(avatar);
+		avatar->update(elapsed);
 	}
 
 
 	float moveSpeed = 0.8f;
-	void processMovments() {
+	void processMovments(MAvatar * avatar) {
 		if (forwardDown)
 			Renderer->Camera->move({ moveSpeed,0,0 });
 
