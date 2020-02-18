@@ -56,8 +56,7 @@ public :
 		World = new MWorld();
 		World->init_world(0);
 		avatar = new MAvatar(Renderer->Camera, World);
-		avatar->toVBO();
-		posAvatar = &avatar->Position;
+		//posAvatar = &avatar->Position;
 		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
 		ShaderSun = Renderer->createProgram("shaders/sun");
 		ShaderCube = Renderer->createProgram("shaders/cube");
@@ -134,24 +133,27 @@ public :
 	
 	void update(float elapsed) 
 	{
-		processMovments(avatar);
-		avatar->update(elapsed);
+		//processMovments(avatar,elapsed);
+		//avatar->update(elapsed);
+		//Avatar->update(elapsed);
+		avatar->Run = GetKeyState(VK_LSHIFT) & 0x80;	
+		Renderer->Camera->moveTo(avatar->Position + YVec3f(0, 0, avatar->CurrentHeight / 2));
 	}
 
 
-	float moveSpeed = 0.8f;
-	void processMovments(MAvatar * avatar) {
+	float moveSpeed = 10.f;
+	void processMovments(MAvatar * avatar, float deltatime) {
 		if (forwardDown)
-			Renderer->Camera->move({ moveSpeed,0,0 });
+			Renderer->Camera->move({ moveSpeed * deltatime,0,0 });
 
 		if (backwardDown)
-			Renderer->Camera->move({ -moveSpeed,0,0 });
+			Renderer->Camera->move({ -moveSpeed * deltatime,0,0 });
 
 		if (leftDown)
-			Renderer->Camera->move({ 0,moveSpeed,0 });
+			Renderer->Camera->move({ 0,moveSpeed* deltatime,0 });
 
 		if (rightDown)
-			Renderer->Camera->move({ 0,-moveSpeed,0 });
+			Renderer->Camera->move({ 0,-moveSpeed * deltatime,0 });
 	}
 
 	YVec3<float> SunDirection;
@@ -161,7 +163,7 @@ public :
 	YColor SunColor;
 
 	YColor SkyColor;
-	YVec3f * posAvatar;
+	//YVec3f * posAvatar;
 	void renderObjects() 
 	{
 		
@@ -205,13 +207,14 @@ public :
 
 
 		glPushMatrix();
-		
+
+		/*
 		glTranslatef(posAvatar->X, posAvatar->Y, posAvatar->Z);
 		Renderer->updateMatricesFromOgl();
 		Renderer->sendMatricesToShader(ShaderWorld);
 		avatar->render();
 		glPopMatrix();
-		
+		*/
 		
 	}
 
@@ -316,8 +319,11 @@ public :
 
 	KeyMap frKeyboard = { 'w','s','a','d' }; // Forward, Backward, Left, Right
 
+	bool BoostingTime;
+
 	void keyPressed(int key, bool special, bool down, int p1, int p2) 
-	{	
+	{
+		/*
 		if (key == 'g' && down)
 			boostDown += 30.f;
 
@@ -335,6 +341,27 @@ public :
 
 		if (key == GLUT_KEY_CTRL_L)
 			ctrlDown = down;
+		*/
+		if (key == 'z')
+			avatar->avance = down;
+		if (key == 's')
+			avatar->recule = down;
+		if (key == 'q')
+			avatar->gauche = down;
+		if (key == 'd')
+			avatar->droite = down;
+		if (key == ' ')
+			avatar->Jump = down;
+		if (key == 'g')
+			BoostingTime = down;
+		if (key == 'e' && !down) {
+			int xC, yC, zC;
+			YVec3f inter;
+			World->getRayCollision(Renderer->Camera->Position,
+				Renderer->Camera->Position + Renderer->Camera->Direction * 30,
+				inter, xC, yC, zC);
+			World->deleteCube(xC, yC, zC);
+		}
 	}
 
 	void mouseWheel(int wheel, int dir, int x, int y, bool inUi)
