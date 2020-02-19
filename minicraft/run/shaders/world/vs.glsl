@@ -22,6 +22,15 @@ flat out int type;
 #define CUBE_HERBE 0.0
 #define CUBE_TERRE 1.0
 #define CUBE_EAU 4.0
+const vec4 CubeColors[6] = vec4[6](
+    vec4(0.1, 0.7, 0.2, 1.0), // CUBE_HERBE
+    vec4(0.2, 0.1, 0.0, 1.0), // CUBE_TERRE
+    vec4(0.2, 0.1, 0.0, 1.0), // CUBE_BOIS
+    vec4(0.7, 0.7, 0.7, 1.0), // CUBE_PIERRE
+    vec4(0.0, 0.0, 1.0, 0.8), // CUBE_EAU
+    vec4(0.7, 0.7, 0.0, 0.0) // CUBE_SABLE
+);
+
 
 float noiseWater(vec4 v){
 	
@@ -59,13 +68,16 @@ void main()
 	uv = vs_uv_in;
 
 	//Couleur par défaut violet
-	color = vec4(1.0,1.0,0.0,1.0);
+	color = CubeColors[int(vs_type_in)];
 
 	//Couleur fonction du type //TODO Mettre dans un tableau
-	if(vs_type_in == CUBE_HERBE)
-		color = vec4(0,1,0,1);
-	if(vs_type_in == CUBE_TERRE)
-		color = vec4(0.2,0.1,0,1);
-	if(vs_type_in == CUBE_EAU)
-		color = vec4(0.0,0.0,1.0,0.7);	
+	//if(vs_type_in == CUBE_HERBE)
+	//	color = vec4(0,1,0,1);
+	//if(vs_type_in == CUBE_TERRE)
+	//	color = vec4(0.2,0.1,0,1);
+	//if(vs_type_in == CUBE_EAU)
+	//	color = vec4(0.0,0.0,1.0,0.7);	
+	
+
+
 }
