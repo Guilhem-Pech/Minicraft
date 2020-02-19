@@ -20,6 +20,9 @@ out vec2 uv;
 #define CUBE_HERBE 0.0
 #define CUBE_TERRE 1.0
 #define CUBE_EAU 4.0
+
+
+
 void main()
 {
 	vec4 vecIn = vec4(vs_position_in,1.0); // Coor object
