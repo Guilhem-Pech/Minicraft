@@ -125,7 +125,7 @@ public:
 		YPerlin noise2 = YPerlin();
 		noise.setFreq(0.05f);
 		noise2.setFreq(0.04f);
-		float r = 0.4f;
+		float r = 0.45f;
 		
 		for (int x = 0; x < MAT_SIZE_CUBES; ++x)
 			for (int y = 0; y < MAT_SIZE_CUBES; ++y)

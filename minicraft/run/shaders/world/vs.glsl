@@ -16,21 +16,36 @@ layout(location=3) in float vs_type_in;
 out vec3 normal;
 out vec4 color;
 out vec2 uv;
+out vec3 wpos;
+flat out int type;
 
 #define CUBE_HERBE 0.0
 #define CUBE_TERRE 1.0
 #define CUBE_EAU 4.0
 
+float noiseWater(vec4 v){
+	
+	vec2 dir = vec2(v.x, v.y);
+	float l = dot(vec2(1,1),dir);
+	float n = (sin(l/3 + elapsed) + 1)/2;
+	
+	l = dot(vec2(1.5,0.5),dir);
+	n += (sin(l/3 + elapsed * 1.3) + 1)/4;
 
+	l = dot(vec2(1.7, 0.3),dir);
+	n += (sin(l/3 + elapsed * 1.6) + 1)/8;
+
+	return n/1.75; 
+}
 
 void main()
 {
-	vec4 vecIn = vec4(vs_position_in,1.0); // Coor object
+	vec4 vecIn = vec4(vs_position_in,1.0); // Coord object
 	vec4 vecInW = m * vecIn; // Coord world
-
+	wpos = vecInW.xyz;
 	// Vagues
 	if(CUBE_EAU == vs_type_in){
-		vecInW.z += sin(vecInW.x/3 + elapsed );
+		vecInW.z +=  noiseWater(vecInW) - 1 ;
 	}
 
 
