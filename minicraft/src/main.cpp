@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
 	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)glutGetProcAddress("wglSwapIntervalEXT");
 	if (wglSwapIntervalEXT)
-		wglSwapIntervalEXT(0);
+		wglSwapIntervalEXT(1);
 	
 	glutMainLoop(); 
 

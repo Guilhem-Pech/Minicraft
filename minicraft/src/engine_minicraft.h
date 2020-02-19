@@ -134,8 +134,7 @@ public :
 	void update(float elapsed) 
 	{
 		//processMovments(avatar,elapsed);
-		//avatar->update(elapsed);
-		//Avatar->update(elapsed);
+		avatar->update(elapsed);
 		avatar->Run = GetKeyState(VK_LSHIFT) & 0x80;	
 		Renderer->Camera->moveTo(avatar->Position + YVec3f(0, 0, avatar->CurrentHeight / 2));
 	}
@@ -205,10 +204,10 @@ public :
 		World->render_world_vbo(true,true);
 		glPopMatrix();
 
-
+		/*
 		glPushMatrix();
 
-		/*
+		
 		glTranslatef(posAvatar->X, posAvatar->Y, posAvatar->Z);
 		Renderer->updateMatricesFromOgl();
 		Renderer->sendMatricesToShader(ShaderWorld);

@@ -93,9 +93,9 @@ public:
 		if (recule)
 			force += forward * -accel;
 		if (gauche)
-			force += right * -accel;
-		if (droite)
 			force += right * accel;
+		if (droite)
+			force += right * -accel;
 
 
 		//On applique le jump
