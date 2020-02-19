@@ -232,9 +232,9 @@ class MChunk
 
 		void reset(void)
 		{
-			for(int x=0;x<CHUNK_SIZE;x++)
-				for(int y=0;y<CHUNK_SIZE;y++)
-					for(int z=0;z<CHUNK_SIZE;z++)
+			for(int x=0;x<CHUNK_SIZE;++x)
+				for(int y=0;y<CHUNK_SIZE;++y)
+					for(int z=0;z<CHUNK_SIZE;++z)
 					{
 						_Cubes[x][y][z].setDraw(false);
 						_Cubes[x][y][z].setType(MCube::CUBE_AIR);

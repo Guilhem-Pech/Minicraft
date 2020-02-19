@@ -34,14 +34,14 @@ public:
 	MWorld()
 	{
 		//On crée les chunks
-		for (int x = 0; x < MAT_SIZE; x++)
-			for (int y = 0; y < MAT_SIZE; y++)
-				for (int z = 0; z < MAT_HEIGHT; z++)
+		for (int x = 0; x < MAT_SIZE; ++x)
+			for (int y = 0; y < MAT_SIZE; ++y)
+				for (int z = 0; z < MAT_HEIGHT; ++z)
 					Chunks[x][y][z] = new MChunk(x, y, z);
 
-		for (int x = 0; x < MAT_SIZE; x++)
-			for (int y = 0; y < MAT_SIZE; y++)
-				for (int z = 0; z < MAT_HEIGHT; z++)
+		for (int x = 0; x < MAT_SIZE; ++x)
+			for (int y = 0; y < MAT_SIZE; ++y)
+				for (int z = 0; z < MAT_HEIGHT; ++z)
 				{
 					MChunk * cxPrev = NULL;
 					if (x > 0)
@@ -123,9 +123,9 @@ public:
 		//Utiliser getCubes() 
 		YPerlin noise = YPerlin();
 		YPerlin noise2 = YPerlin();
-		noise.setFreq(0.04f);
-		noise2.setFreq(0.02f);
-		float r = 0.3f;
+		noise.setFreq(0.05f);
+		noise2.setFreq(0.04f);
+		float r = 0.4f;
 		
 		for (int x = 0; x < MAT_SIZE_CUBES; ++x)
 			for (int y = 0; y < MAT_SIZE_CUBES; ++y)
