@@ -2,6 +2,9 @@
 
 uniform float elapsed;
 uniform mat4 mvp;
+uniform mat4 m;
+uniform mat4 v;
+uniform mat4 p;
 uniform mat4 nmat;
 
 layout(location=0) in vec3 vs_position_in;
@@ -17,11 +20,21 @@ out vec2 uv;
 #define CUBE_HERBE 0.0
 #define CUBE_TERRE 1.0
 #define CUBE_EAU 4.0
-
 void main()
 {
-	vec4 vecIn = vec4(vs_position_in,1.0);
-	gl_Position = mvp * vecIn;
+	vec4 vecIn = vec4(vs_position_in,1.0); // Coor object
+	vec4 vecInW = m * vecIn; // Coord world
+
+	// Vagues
+	if(CUBE_EAU == vs_type_in){
+		vecInW.z += sin(vecInW.x/3 + elapsed );
+	}
+
+
+	vec4 vecInViewSpace = v * vecInW; // Coord view	
+	vecInViewSpace.y -= length(vecInViewSpace.xyz)/4; // Effet planête
+
+	gl_Position = p * vecInViewSpace;
 		
 	normal = (nmat * vec4(vs_normal_in,1.0)).xyz; 
 
@@ -30,7 +43,7 @@ void main()
 	//Couleur par défaut violet
 	color = vec4(1.0,1.0,0.0,1.0);
 
-	//Couleur fonction du type
+	//Couleur fonction du type //TODO Mettre dans un tableau
 	if(vs_type_in == CUBE_HERBE)
 		color = vec4(0,1,0,1);
 	if(vs_type_in == CUBE_TERRE)

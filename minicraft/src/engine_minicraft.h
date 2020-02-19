@@ -19,7 +19,10 @@ public :
 
 	/*HANDLERS GENERAUX*/
 	void loadShaders() {
-		
+		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
+		ShaderSun = Renderer->createProgram("shaders/sun");
+		ShaderCube = Renderer->createProgram("shaders/cube");
+		ShaderWorld = Renderer->createProgram("shaders/world");
 	}
 	GLuint ShaderCubeDebug;
 	GLuint ShaderSun;
@@ -57,12 +60,9 @@ public :
 		World->init_world(0);
 		avatar = new MAvatar(Renderer->Camera, World);
 		//posAvatar = &avatar->Position;
-		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
-		ShaderSun = Renderer->createProgram("shaders/sun");
-		ShaderCube = Renderer->createProgram("shaders/cube");
-		ShaderWorld = Renderer->createProgram("shaders/world");
-		//Exemple d'utilisation d'un shader
 		
+		//Exemple d'utilisation d'un shader
+		loadShaders();
 	}
 
 
@@ -201,7 +201,10 @@ public :
 		//Renderer->updateMatricesFromOgl();
 		//Renderer->sendMatricesToShader(ShaderCube);
 		//World->render_world_basic(ShaderCube,VboCube);
+		
 		World->render_world_vbo(true,true);
+		GLuint time = glGetUniformLocation(ShaderWorld, "elapsed");
+		glUniform1f(time, DeltaTimeCumul);
 		glPopMatrix();
 
 		/*
