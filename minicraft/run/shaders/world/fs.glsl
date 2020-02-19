@@ -71,7 +71,7 @@ void main()
 
 	// Speculaire
 	vec3 H = normalize(toLight + vue);
-	float spec = dot(N, H);
+	float spec = abs(dot(N, H));
 	spec = pow(spec,300);
 	c.rgb += sunColor * spec * diff;
 
