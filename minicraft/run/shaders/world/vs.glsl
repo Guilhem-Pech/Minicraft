@@ -69,8 +69,8 @@ void main()
 
 	//Couleur par défaut violet
 	color = CubeColors[int(vs_type_in)];
-
-	//Couleur fonction du type //TODO Mettre dans un tableau
+	
+	//Couleur fonction du type 
 	//if(vs_type_in == CUBE_HERBE)
 	//	color = vec4(0,1,0,1);
 	//if(vs_type_in == CUBE_TERRE)

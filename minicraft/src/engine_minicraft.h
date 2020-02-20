@@ -17,12 +17,14 @@ public:
 		return Instance;
 	}
 
+	GLuint PostProcessProg;
 	/*HANDLERS GENERAUX*/
 	void loadShaders() {
 		ShaderCubeDebug = Renderer->createProgram("shaders/cube_debug");
 		ShaderSun = Renderer->createProgram("shaders/sun");
 		ShaderCube = Renderer->createProgram("shaders/cube");
 		ShaderWorld = Renderer->createProgram("shaders/world");
+		PostProcessProg = Renderer->createProgram("shaders/postprocess");
 	}
 	GLuint ShaderCubeDebug;
 	GLuint ShaderSun;
@@ -34,6 +36,8 @@ public:
 
 	GLuint ShaderWorld;
 
+	YFbo * FboPostProcess;
+	
 	void init()
 	{
 		YLog::log(YLog::ENGINE_INFO, "Minicraft Started : initialisation");
@@ -42,20 +46,23 @@ public:
 		Renderer->Camera->setPosition(YVec3f(100, 100, 100));
 		Renderer->Camera->setLookAt(YVec3f());
 
+		//On cree le FBO pour le post process
+		FboPostProcess = new YFbo(1);
+		FboPostProcess->init(Renderer->ScreenWidth, Renderer->ScreenHeight);
 
-
+		
 		//Creation du VBO
 		VboCube = CreateCube({ {1,0,0} , {1,1,0}, {1,1,1},{1,0,1}, {0,0,1}, {0,1,1}, {0,1,0}, {0,0,0} });
 
 		//On envoie le contenu au GPU
 		VboCube->createVboGpu();
 
-		//On relache la m�moire CPU
+		//On relache la mémoire CPU
 		VboCube->deleteVboCpu();
 
 
 
-		//Pour cr�er le monde
+		//Pour créer le monde
 		World = new MWorld();
 		World->init_world(0);
 		avatar = new MAvatar(Renderer->Camera, World);
@@ -165,7 +172,8 @@ public:
 	//YVec3f * posAvatar;
 	void renderObjects()
 	{
-
+		FboPostProcess->setAsOutFBO(true);
+		
 		glUseProgram(0);
 		//Rendu des axes
 		glDisable(GL_LIGHTING);
@@ -232,6 +240,23 @@ public:
 		glPopMatrix();
 		*/
 
+		FboPostProcess->setAsOutFBO(false);
+
+		glUseProgram(PostProcessProg);
+
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+
+		FboPostProcess->setColorAsShaderInput(0, GL_TEXTURE0, "TexColor");
+		FboPostProcess->setDepthAsShaderInput(GL_TEXTURE1, "TexDepth");
+
+
+		Renderer->sendScreenSizeToShader(PostProcessProg);
+
+		
+		Renderer->sendNearFarToShader(PostProcessProg);
+		Renderer->drawFullScreenQuad();
+		
 	}
 
 	bool getSunDirFromDayTime(YVec3f & sunDir, float mnLever, float mnCoucher, float boostTime)
@@ -312,7 +337,7 @@ public:
 
 
 	void resize(int width, int height) {
-
+		FboPostProcess->resize(width, height);
 	}
 
 	/*INPUTS*/
